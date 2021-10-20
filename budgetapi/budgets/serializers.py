@@ -23,6 +23,7 @@ class BudgetSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('balance',)
 
+    @transaction.atomic
     def create(self, validated_data: dict) -> Budget:
         creator = self.context['request'].user
         data = {**validated_data, 'creator': creator}
@@ -92,7 +93,7 @@ class WithdrawalSerializer(TransactionSerializerMixin):
         amount = validated_data['amount']
 
         if amount > budget.balance:
-            raise serializers.ValidationError('Not enough founds in budget.')
+            raise serializers.ValidationError('Not enough funds in budget.')
 
         budget.balance = F('balance') - amount
         budget.save()

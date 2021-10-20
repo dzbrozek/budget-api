@@ -131,7 +131,7 @@ class WithdrawalSerializerTest(TestCase):
 
         with self.assertRaises(serializers.ValidationError) as cm:
             serializer.save()
-        self.assertEqual(cm.exception.detail, [ErrorDetail(string='Not enough founds in budget.', code='invalid')])
+        self.assertEqual(cm.exception.detail, [ErrorDetail(string='Not enough funds in budget.', code='invalid')])
 
         budget.refresh_from_db()
 
