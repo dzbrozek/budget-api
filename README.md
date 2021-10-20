@@ -9,7 +9,7 @@ The aim of this project is to build a simple budget API. Requirements:
 * every budget's member can check current budget balance
 * every budget's member can check history of transactions (transfers & withdraws) for selected date range
 
-[![codecov](https://codecov.io/gh/dzbrozek/budget-api/branch/main/graph/badge.svg)](https://codecov.io/gh/dzbrozek/budget-api)
+[![codecov](https://codecov.io/gh/dzbrozek/budget-api/branch/master/graph/badge.svg?token=AEIuh4ihQO)](https://codecov.io/gh/dzbrozek/budget-api)
 
 
 ### Development
