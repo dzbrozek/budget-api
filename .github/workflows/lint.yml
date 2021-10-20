@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: "d4=)g4&5#jwb8k6+z7i$ga8oa&$&n&+pciy1aj(45%2cv8@&@("
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
+    services:
+      postgres:
+        image: postgres:12.3
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install requirements
+        run: pip install -r ./requirements/dev.txt
+      - name: Run tests
+        run: |
+          cd budgetapi
+          python manage.py migrate --noinput
+          coverage run --rcfile="../.coveragerc" --parallel-mode manage.py test --verbosity 3 --parallel
+          coverage combine --rcfile="../.coveragerc"
+          coverage xml --rcfile="../.coveragerc"
+      - name: Check migrations
+        run: |
+          cd budgetapi
+          python manage.py makemigrations --check --dry-run
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./budgetapi/coverage.xml
+
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: "d4=)g4&5#jwb8k6+z7i$ga8oa&$&n&+pciy1aj(45%2cv8@&@("
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install requirements
+        run: pip install -r ./requirements/dev.txt
+      - name: Lint code
+        run: flake8 budgetapi/
+      - name: Check typing
+        run: |
+          cd budgetapi
+          mypy --config-file ../mypy.ini budgetapi/
+      - name: Check security
+        run: |
+          cd budgetapi
+          bandit -r budgetapi/
+      - uses: brpaz/hadolint-action@master
+        name: Lint dockerfile
+        with:
+          dockerfile: Dockerfile
+      - uses: wagoid/commitlint-github-action@v2
+        name: Lint commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
