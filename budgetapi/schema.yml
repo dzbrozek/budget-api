@@ -1,0 +1,450 @@
+openapi: 3.0.3
+info:
+  title: Budget API
+  version: 1.0.0
+paths:
+  /api/budgets/:
+    post:
+      operationId: budgets_create
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Budget'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Budget'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Budget'
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+          description: ''
+  /api/budgets/{id}/:
+    get:
+      operationId: budgets_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - budgets
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+          description: ''
+  /api/budgets/{id}/members/:
+    post:
+      operationId: budgets_members_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetAddMember'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BudgetAddMember'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BudgetAddMember'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetAddMember'
+          description: ''
+  /api/budgets/{id}/transactions/:
+    get:
+      operationId: budgets_transactions_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - budgets
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/budgets/{id}/transfers/:
+    post:
+      operationId: budgets_transfers_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+          description: ''
+  /api/budgets/{id}/withdrawals/:
+    post:
+      operationId: budgets_withdrawals_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Withdrawal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Withdrawal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Withdrawal'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Withdrawal'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    Budget:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        balance:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - balance
+      - id
+    BudgetAddMember:
+      type: object
+      properties:
+        user:
+          type: integer
+          writeOnly: true
+      required:
+      - user
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        creator:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+        title:
+          type: string
+          maxLength: 255
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        type:
+          enum:
+          - TRANSFER
+          - WITHDRAWAL
+          type: string
+      required:
+      - amount
+      - createdAt
+      - creator
+      - id
+      - type
+    Transfer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+        title:
+          type: string
+          maxLength: 255
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        type:
+          enum:
+          - TRANSFER
+          - WITHDRAWAL
+          type: string
+          readOnly: true
+      required:
+      - amount
+      - createdAt
+      - id
+      - title
+      - type
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        firstName:
+          type: string
+          maxLength: 150
+        lastName:
+          type: string
+          maxLength: 150
+      required:
+      - id
+      - username
+    Withdrawal:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+        title:
+          type: string
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        type:
+          enum:
+          - TRANSFER
+          - WITHDRAWAL
+          type: string
+          readOnly: true
+      required:
+      - amount
+      - createdAt
+      - id
+      - title
+      - type
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

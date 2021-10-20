@@ -1,0 +1,14 @@
+[run]
+parallel = True
+branch = True
+concurrency = multiprocessing
+source = .
+omit =
+    */migrations/*
+    */commands/*
+    */tests/test_*.py
+    */settings/*
+    */manage.py
+
+[report]
+ignore_errors = True

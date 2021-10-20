@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:12.3
+    env_file:
+      - .env
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  backend:
+    restart: always
+    command: start-backend
+    image: budget-api
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    logging:
+      options:
+        max-size: "200k"
+
+volumes:
+  pg-data:
