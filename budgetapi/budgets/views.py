@@ -11,14 +11,12 @@ from budgets.serializers import (
 )
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.functional import cached_property
 from rest_framework.generics import CreateAPIView, GenericAPIView, ListAPIView, RetrieveAPIView, get_object_or_404
 
 
 class BudgetCreateAPIView(CreateAPIView):
     serializer_class = BudgetSerializer
-
-    def get_queryset(self) -> models.QuerySet['Budget']:
-        return Budget.objects.filter(members=cast(User, self.request.user))
 
 
 class BudgetRetrieveAPIView(RetrieveAPIView):
@@ -40,12 +38,13 @@ class BudgetAddMemberAPIView(CreateAPIView):
 
 
 class BudgetAPIViewMixin(GenericAPIView):
-    def get_budget(self) -> Budget:
+    @cached_property
+    def budget(self) -> Budget:
         return get_object_or_404(Budget.objects.filter(members=cast(User, self.request.user)), pk=self.kwargs['pk'])
 
     def get_serializer_context(self) -> dict:
         context = super().get_serializer_context()
-        context['budget'] = self.get_budget()
+        context['budget'] = self.budget
         return context
 
 
@@ -54,8 +53,9 @@ class TransactionListAPIView(ListAPIView, BudgetAPIViewMixin):
     filterset_class = TransactionFilter
 
     def get_queryset(self) -> models.QuerySet['Transaction']:
-        budget = self.get_budget()
-        return Transaction.objects.filter(budget=budget).select_related('creator', 'category').order_by('-created_at')
+        return (
+            Transaction.objects.filter(budget=self.budget).select_related('creator', 'category').order_by('-created_at')
+        )
 
 
 class TransferCreateAPIView(CreateAPIView, BudgetAPIViewMixin):
