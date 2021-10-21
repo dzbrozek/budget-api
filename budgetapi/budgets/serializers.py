@@ -94,11 +94,12 @@ def categorize_title(title: str) -> Optional[Category]:
 
 
 class TransferSerializer(TransactionSerializerMixin):
+    creator = UserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Transaction
-        fields = ('id', 'amount', 'title', 'created_at', 'type', 'category')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
         read_only_fields = ('created_at', 'type')
         extra_kwargs = {'title': {'required': True}}
 
@@ -120,11 +121,12 @@ class TransferSerializer(TransactionSerializerMixin):
 
 
 class WithdrawalSerializer(TransactionSerializerMixin):
+    creator = UserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Transaction
-        fields = ('id', 'amount', 'title', 'created_at', 'type', 'category')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
         read_only_fields = ('created_at', 'type', 'title')
 
     @transaction.atomic

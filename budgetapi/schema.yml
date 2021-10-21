@@ -332,7 +332,52 @@ components:
           writeOnly: true
       required:
       - user
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - name
     Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        creator:
+          $ref: '#/components/schemas/User'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+        title:
+          type: string
+          maxLength: 255
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        type:
+          enum:
+          - TRANSFER
+          - WITHDRAWAL
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+      required:
+      - amount
+      - category
+      - createdAt
+      - creator
+      - id
+      - type
+    Transfer:
       type: object
       properties:
         id:
@@ -358,38 +403,16 @@ components:
           - TRANSFER
           - WITHDRAWAL
           type: string
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Category'
+          readOnly: true
       required:
       - amount
+      - category
       - createdAt
       - creator
-      - id
-      - type
-    Transfer:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        amount:
-          type: string
-          format: decimal
-          pattern: ^\d{0,8}(?:\.\d{0,2})?$
-        title:
-          type: string
-          maxLength: 255
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-        type:
-          enum:
-          - TRANSFER
-          - WITHDRAWAL
-          type: string
-          readOnly: true
-      required:
-      - amount
-      - createdAt
       - id
       - title
       - type
@@ -420,6 +443,10 @@ components:
         id:
           type: integer
           readOnly: true
+        creator:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
         amount:
           type: string
           format: decimal
@@ -437,9 +464,15 @@ components:
           - WITHDRAWAL
           type: string
           readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Category'
+          readOnly: true
       required:
       - amount
+      - category
       - createdAt
+      - creator
       - id
       - title
       - type
