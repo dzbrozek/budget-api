@@ -103,6 +103,7 @@ class TransferSerializerTest(TestCase):
         self.assertEqual(transaction.title, data['title'])
         self.assertEqual(transaction.amount, decimal.Decimal(data['amount']))
         self.assertEqual(transaction.category, education_category)
+        self.assertEqual(transaction.current_balance, decimal.Decimal('20.80'))
 
 
 class WithdrawalSerializerTest(TestCase):
@@ -166,6 +167,7 @@ class WithdrawalSerializerTest(TestCase):
         self.assertEqual(transaction.title, 'Withdrawal')
         self.assertEqual(transaction.amount, decimal.Decimal(data['amount']))
         self.assertEqual(transaction.category, None)
+        self.assertEqual(transaction.current_balance, decimal.Decimal('4.80'))
 
 
 class CategorizeTitle(TestCase):

@@ -39,6 +39,7 @@ class Transaction(models.Model):
     title = models.CharField(max_length=255, blank=True)
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE)
     type = models.CharField(max_length=10, choices=TransactionType.choices)
+    current_balance = models.DecimalField(max_digits=10, decimal_places=2, help_text='Budget balance after transaction')
 
     class Meta:
         constraints = [
