@@ -370,11 +370,17 @@ components:
           type: string
         category:
           $ref: '#/components/schemas/Category'
+        currentBalance:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+          description: Budget balance after transaction
       required:
       - amount
       - category
       - createdAt
       - creator
+      - currentBalance
       - id
       - type
     Transfer:
@@ -408,11 +414,18 @@ components:
           allOf:
           - $ref: '#/components/schemas/Category'
           readOnly: true
+        currentBalance:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          description: Budget balance after transaction
       required:
       - amount
       - category
       - createdAt
       - creator
+      - currentBalance
       - id
       - title
       - type
@@ -468,11 +481,18 @@ components:
           allOf:
           - $ref: '#/components/schemas/Category'
           readOnly: true
+        currentBalance:
+          type: string
+          format: decimal
+          pattern: ^\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          description: Budget balance after transaction
       required:
       - amount
       - category
       - createdAt
       - creator
+      - currentBalance
       - id
       - title
       - type

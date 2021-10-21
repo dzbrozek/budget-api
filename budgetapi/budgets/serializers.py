@@ -4,7 +4,6 @@ from typing import List, Optional, cast
 from budgets.models import Budget, Category, Transaction, TransactionType
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import F
 from rest_framework import serializers
 from stempel import StempelStemmer
 
@@ -56,7 +55,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category', 'current_balance')
 
 
 class TransactionSerializerMixin(serializers.ModelSerializer):
@@ -99,14 +98,14 @@ class TransferSerializer(TransactionSerializerMixin):
 
     class Meta:
         model = Transaction
-        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
-        read_only_fields = ('created_at', 'type')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category', 'current_balance')
+        read_only_fields = ('created_at', 'type', 'current_balance')
         extra_kwargs = {'title': {'required': True}}
 
     @transaction.atomic
     def create(self, validated_data: dict) -> Transaction:
-        budget = self.context['budget']
-        budget.balance = F('balance') + validated_data['amount']
+        budget = Budget.objects.filter(pk=self.context['budget'].pk).select_for_update().get()
+        budget.balance += validated_data['amount']
         budget.save()
         category = categorize_title(validated_data['title'])
 
@@ -116,6 +115,7 @@ class TransferSerializer(TransactionSerializerMixin):
             'budget': budget,
             'category': category,
             'type': TransactionType.TRANSFER,
+            'current_balance': budget.balance,
         }
         return cast(Transaction, super().create(data))
 
@@ -126,8 +126,8 @@ class WithdrawalSerializer(TransactionSerializerMixin):
 
     class Meta:
         model = Transaction
-        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
-        read_only_fields = ('created_at', 'type', 'title')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category', 'current_balance')
+        read_only_fields = ('created_at', 'type', 'title', 'current_balance')
 
     @transaction.atomic
     def create(self, validated_data: dict) -> Transaction:
@@ -138,7 +138,7 @@ class WithdrawalSerializer(TransactionSerializerMixin):
         if amount > budget.balance:
             raise serializers.ValidationError('Not enough funds in budget.')
 
-        budget.balance = F('balance') - amount
+        budget.balance -= amount
         budget.save()
 
         data = {
@@ -147,5 +147,6 @@ class WithdrawalSerializer(TransactionSerializerMixin):
             'budget': budget,
             'type': TransactionType.WITHDRAWAL,
             'title': 'Withdrawal',
+            'current_balance': budget.balance,
         }
         return cast(Transaction, super().create(data))

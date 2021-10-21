@@ -52,6 +52,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     title = factory.fuzzy.FuzzyText()
     category = factory.SubFactory(CategoryFactory)
     type = factory.fuzzy.FuzzyChoice(choices=TransactionType.values)
+    current_balance = factory.fuzzy.FuzzyDecimal(low=0, high=100)
 
     class Meta:
         model = Transaction
