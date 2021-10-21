@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -14,6 +15,17 @@ class Budget(models.Model):
         return f'Budget: {self.pk}'
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    tags = ArrayField(models.CharField(max_length=100))
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+
+    def __str__(self) -> str:
+        return f'Category: {self.pk}'
+
+
 class TransactionType(models.TextChoices):
     TRANSFER = 'TRANSFER', 'Transfer'
     WITHDRAWAL = 'WITHDRAWAL', 'Withdrawal'
@@ -25,6 +37,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=255, blank=True)
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE)
     type = models.CharField(max_length=10, choices=TransactionType.choices)
 
     class Meta:

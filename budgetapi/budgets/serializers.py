@@ -1,11 +1,12 @@
 import decimal
-from typing import cast
+from typing import List, Optional, cast
 
-from budgets.models import Budget, Transaction, TransactionType
+from budgets.models import Budget, Category, Transaction, TransactionType
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F
 from rest_framework import serializers
+from stempel import StempelStemmer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -43,12 +44,19 @@ class BudgetAddMemberSerializer(serializers.Serializer):
         return cast(Budget, budget)
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('id', 'name')
+        model = Category
+
+
 class TransactionSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(read_only=True)
+    creator = UserSerializer()
+    category = CategorySerializer()
 
     class Meta:
         model = Transaction
-        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
 
 
 class TransactionSerializerMixin(serializers.ModelSerializer):
@@ -58,10 +66,40 @@ class TransactionSerializerMixin(serializers.ModelSerializer):
         return value
 
 
+stemmer = None
+
+
+def text_stemming(text: str) -> List[str]:
+    global stemmer
+
+    if stemmer is None:
+        stemmer = StempelStemmer.polimorf()
+
+    stems = []
+    for word in text.split():
+        stems.append(stemmer.stem(word))
+
+    return stems
+
+
+def categorize_title(title: str) -> Optional[Category]:
+    categories = Category.objects.all()
+    for category in categories:
+        category_tags = set(category.tags)
+        title_tags = set(text_stemming(title))
+
+        if category_tags & title_tags:
+            return category
+    return None
+
+
 class TransferSerializer(TransactionSerializerMixin):
+    creator = UserSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+
     class Meta:
         model = Transaction
-        fields = ('id', 'amount', 'title', 'created_at', 'type')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
         read_only_fields = ('created_at', 'type')
         extra_kwargs = {'title': {'required': True}}
 
@@ -70,20 +108,25 @@ class TransferSerializer(TransactionSerializerMixin):
         budget = self.context['budget']
         budget.balance = F('balance') + validated_data['amount']
         budget.save()
+        category = categorize_title(validated_data['title'])
 
         data = {
             **validated_data,
             'creator': self.context['request'].user,
             'budget': budget,
+            'category': category,
             'type': TransactionType.TRANSFER,
         }
         return cast(Transaction, super().create(data))
 
 
 class WithdrawalSerializer(TransactionSerializerMixin):
+    creator = UserSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+
     class Meta:
         model = Transaction
-        fields = ('id', 'amount', 'title', 'created_at', 'type')
+        fields = ('id', 'creator', 'amount', 'title', 'created_at', 'type', 'category')
         read_only_fields = ('created_at', 'type', 'title')
 
     @transaction.atomic

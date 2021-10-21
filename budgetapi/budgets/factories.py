@@ -2,8 +2,9 @@ import datetime
 from typing import List
 
 import factory.fuzzy
-from budgets.models import Budget, Transaction, TransactionType
+from budgets.models import Budget, Category, Transaction, TransactionType
 from django.contrib.auth.models import User
+from faker import Faker
 
 USER_PASSWORD = 'password'  # nosec
 
@@ -36,11 +37,20 @@ class BudgetFactory(factory.django.DjangoModelFactory):
                 self.members.add(user)
 
 
+class CategoryFactory(factory.django.DjangoModelFactory):
+    name = factory.fuzzy.FuzzyText()
+    tags = factory.LazyFunction(lambda: Faker().sentence().split())
+
+    class Meta:
+        model = Category
+
+
 class TransactionFactory(factory.django.DjangoModelFactory):
     creator = factory.SubFactory(UserFactory)
     budget = factory.SubFactory(BudgetFactory)
     amount = factory.fuzzy.FuzzyDecimal(low=0.01, high=100)
     title = factory.fuzzy.FuzzyText()
+    category = factory.SubFactory(CategoryFactory)
     type = factory.fuzzy.FuzzyChoice(choices=TransactionType.values)
 
     class Meta:

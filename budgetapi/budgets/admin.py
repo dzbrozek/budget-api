@@ -1,4 +1,4 @@
-from budgets.models import Budget, Transaction
+from budgets.models import Budget, Category, Transaction
 from django.contrib import admin
 
 
@@ -14,5 +14,11 @@ class BudgetAdmin(admin.ModelAdmin):
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'creator', 'budget', 'amount', 'title', 'type', 'created_at')
     search_fields = ('id', 'title')
-    raw_id_fields = ('creator', 'budget')
+    raw_id_fields = ('creator', 'budget', 'category')
     list_filter = ('created_at', 'type')
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'tags')
+    search_fields = ('id',)
