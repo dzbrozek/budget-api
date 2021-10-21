@@ -25,7 +25,7 @@ class BudgetRetrieveAPIView(RetrieveAPIView):
     serializer_class = BudgetSerializer
 
     def get_queryset(self) -> models.QuerySet['Budget']:
-        return Budget.objects.filter(members=cast(User, self.request.user))
+        return Budget.objects.filter(members=cast(User, self.request.user)).select_related('creator')
 
 
 class BudgetAddMemberAPIView(CreateAPIView):
@@ -55,7 +55,7 @@ class TransactionListAPIView(ListAPIView, BudgetAPIViewMixin):
 
     def get_queryset(self) -> models.QuerySet['Transaction']:
         budget = self.get_budget()
-        return Transaction.objects.filter(budget=budget).select_related('creator', 'category').order_by('created_at')
+        return Transaction.objects.filter(budget=budget).select_related('creator', 'category').order_by('-created_at')
 
 
 class TransferCreateAPIView(CreateAPIView, BudgetAPIViewMixin):

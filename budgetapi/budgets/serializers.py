@@ -15,12 +15,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BudgetSerializer(serializers.ModelSerializer):
+    members = UserSerializer(many=True, read_only=True)
+    creator = UserSerializer(read_only=True)
+
     class Meta:
         model = Budget
-        fields = (
-            'id',
-            'balance',
-        )
+        fields = ('id', 'balance', 'members', 'creator')
         read_only_fields = ('balance',)
 
     @transaction.atomic

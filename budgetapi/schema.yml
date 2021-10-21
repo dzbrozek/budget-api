@@ -321,9 +321,20 @@ components:
           format: decimal
           pattern: ^\d{0,8}(?:\.\d{0,2})?$
           readOnly: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          readOnly: true
+        creator:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
       required:
       - balance
+      - creator
       - id
+      - members
     BudgetAddMember:
       type: object
       properties:
