@@ -1,8 +1,15 @@
 import decimal
 
-from budgets.factories import BudgetFactory, UserFactory
+from budgets.factories import BudgetFactory, CategoryFactory, UserFactory
 from budgets.models import TransactionType
-from budgets.serializers import BudgetAddMemberSerializer, BudgetSerializer, TransferSerializer, WithdrawalSerializer
+from budgets.serializers import (
+    BudgetAddMemberSerializer,
+    BudgetSerializer,
+    TransferSerializer,
+    WithdrawalSerializer,
+    categorize_title,
+    text_stemming,
+)
 from django.http import HttpRequest
 from django.test import TestCase
 from rest_framework import serializers
@@ -75,11 +82,12 @@ class TransferSerializerTest(TestCase):
         )
 
     def test_transfer_money_to_budget(self):
+        education_category = CategoryFactory(name="edukacja", tags=['książka', 'podręcznik'])
         user = UserFactory()
         request = HttpRequest()
         request.user = user
         budget = BudgetFactory(balance=decimal.Decimal('10.30'))
-        data = {'title': 'Debt', 'amount': '10.50'}
+        data = {'title': 'Oddaje pieniądze za książki', 'amount': '10.50'}
         serializer = TransferSerializer(data=data, context=dict(request=request, budget=budget))
 
         serializer.is_valid(raise_exception=True)
@@ -94,6 +102,7 @@ class TransferSerializerTest(TestCase):
         self.assertEqual(transaction.type, TransactionType.TRANSFER)
         self.assertEqual(transaction.title, data['title'])
         self.assertEqual(transaction.amount, decimal.Decimal(data['amount']))
+        self.assertEqual(transaction.category, education_category)
 
 
 class WithdrawalSerializerTest(TestCase):
@@ -156,3 +165,20 @@ class WithdrawalSerializerTest(TestCase):
         self.assertEqual(transaction.type, TransactionType.WITHDRAWAL)
         self.assertEqual(transaction.title, 'Withdrawal')
         self.assertEqual(transaction.amount, decimal.Decimal(data['amount']))
+        self.assertEqual(transaction.category, None)
+
+
+class CategorizeTitle(TestCase):
+    def test_text_stemming(self):
+        self.assertEqual(
+            text_stemming('oddaję pieniądze za przejazd samochodem'),
+            ['oddawać', 'pieniądz', 'za', 'przejazd', 'samochód'],
+        )
+
+    def test_categorize_title(self):
+        transport_category = CategoryFactory(name="transport", tags=['bilet', 'przejazd'])
+        education_category = CategoryFactory(name="edukacja", tags=['książka', 'podręcznik'])
+
+        self.assertEqual(categorize_title('Oddaje pieniądze'), None)
+        self.assertEqual(categorize_title('Oddaje pieniądze za ostatnie przejazdy samochodem'), transport_category)
+        self.assertEqual(categorize_title('Oddaje pieniądze za książki'), education_category)

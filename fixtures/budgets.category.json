@@ -1,0 +1,18 @@
+[
+{
+    "model": "budgets.category",
+    "pk": 1,
+    "fields": {
+        "name": "transport",
+        "tags": "[\"bilet\", \"przejazd\"]"
+    }
+},
+{
+    "model": "budgets.category",
+    "pk": 2,
+    "fields": {
+        "name": "edukacja",
+        "tags": "[\"ksi\\u0105\\u017cka\", \"podr\\u0119cznik\"]"
+    }
+}
+]

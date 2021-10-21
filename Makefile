@@ -1,4 +1,4 @@
-.PHONY : shell build up bootstrap down removevolumes mypy test managepy precommit testci migrate makemigrations
+.PHONY : shell build up bootstrap down removevolumes mypy test managepy precommit testci migrate makemigrations bash
 
 build:
 	docker build -t budget-api \
@@ -24,6 +24,8 @@ makemigrations:
 	docker-compose exec -T backend python manage.py makemigrations
 shell:
 	docker-compose exec backend python manage.py shell_plus
+bash:
+	docker-compose exec backend bash
 schema:
 	docker-compose exec backend python manage.py spectacular --file schema.yml
 managepy:

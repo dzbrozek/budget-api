@@ -4,7 +4,8 @@ The aim of this project is to build a simple budget API. Requirements:
 
 * every user can create his own budget (no limit on number of budgets)
 * budget's creator can add new members to the budget
-* budget's members can transfer money into the budget
+* budget's members can transfer money into the budget. To transfer money they have to provide title and amount
+* based on transfer's title every transfer is assigned to one of categories (every category has a list of keywords)
 * budget's members can withdraw money from the budget
 * every budget's member can check current budget balance
 * every budget's member can check history of transactions (transfers & withdraws) for selected date range

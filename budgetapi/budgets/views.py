@@ -55,7 +55,7 @@ class TransactionListAPIView(ListAPIView, BudgetAPIViewMixin):
 
     def get_queryset(self) -> models.QuerySet['Transaction']:
         budget = self.get_budget()
-        return Transaction.objects.filter(budget=budget).select_related('creator').order_by('created_at')
+        return Transaction.objects.filter(budget=budget).select_related('creator', 'category').order_by('created_at')
 
 
 class TransferCreateAPIView(CreateAPIView, BudgetAPIViewMixin):
